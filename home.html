@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NAIRA TOKEN - Home</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #000;
+      color: #FFD700;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to right, rgba(0,255,0,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,255,0,0.1) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+    }
+
+    .chart-container { position: absolute; inset: 0; overflow: hidden; z-index: 1; }
+    svg { width: 100%; height: 100%; }
+
+    .arrow-line {
+      fill: none;
+      stroke: #00FF00;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 8px #00FF00);
+      stroke-dasharray: 1200;
+      stroke-dashoffset: 1200;
+      animation: drawLine 6s ease-in-out infinite;
+    }
+
+    .arrow-head {
+      fill: #00FF00;
+      filter: drop-shadow(0 0 8px #00FF00);
+      transform-origin: center;
+      animation: followLine 6s ease-in-out infinite;
+    }
+
+    @keyframes drawLine {
+      0% { stroke-dashoffset: 1200; opacity: 0.8; }
+      50% { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: -1200; opacity: 0.8; }
+    }
+
+    @keyframes followLine {
+      0% { transform: translate(50px, 550px) scale(1); }
+      25% { transform: translate(250px, 450px) scale(1.1); }
+      50% { transform: translate(450px, 350px) scale(1.2); }
+      75% { transform: translate(650px, 200px) scale(1.3); }
+      100% { transform: translate(850px, 100px) scale(1.4); }
+    }
+
+    .watermark {
+      position: absolute;
+      opacity: 0.05;
+      font-size: 100px;
+      user-select: none;
+      animation: float 12s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .wm1 { top: 10%; left: 15%; animation-delay: 0s; }
+    .wm2 { top: 40%; right: 10%; animation-delay: 3s; color: #00FF00; }
+    .wm3 { bottom: 15%; left: 30%; animation-delay: 6s; color: #FF0000; }
+    .wm4 { top: 70%; right: 25%; animation-delay: 9s; color: #FFD700; }
+    .wm5 { top: 25%; right: 40%; animation-delay: 12s; color: #00FF00; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.05; }
+      50% { transform: translateY(-20px) rotate(10deg); opacity: 0.1; }
+    }
+
+    #balance-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-weight: 600;
+      z-index: 10;
+      cursor: pointer;
+      background: #111;
+      border: 2px solid #FFD700;
+      border-radius: 15px;
+      padding: 12px 20px;
+      box-shadow: 0 0 15px #FFD70050;
+      transition: 0.3s;
+    }
+
+    #balance-container:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px #FFD70080;
+    }
+
+    #menu {
+      position: absolute;
+      top: 70px;
+      right: 20px;
+      background: #111;
+      border: 1px solid #FFD700;
+      border-radius: 10px;
+      padding: 0 10px;
+      text-align: right;
+      box-shadow: 0 0 10px #FFD70050;
+      z-index: 10;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: all 0.4s ease-in-out;
+    }
+
+    #menu.show {
+      padding: 10px;
+      max-height: 200px;
+      opacity: 1;
+    }
+
+    #menu button {
+      background: none;
+      border: none;
+      color: #FFD700;
+      font-weight: 500;
+      margin: 5px 0;
+      cursor: pointer;
+      width: 100%;
+      text-align: right;
+    }
+
+    #menu button:hover { color: #fff; }
+
+    .token-menu {
+      background: #111;
+      border: 2px solid #FFD700;
+      padding: 25px 45px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px #FFD70080;
+      cursor: pointer;
+      transition: 0.3s;
+      text-align: center;
+      font-size: 1.2rem;
+      z-index: 10;
+    }
+
+    .token-menu:hover {
+      background: #FFD700;
+      color: #000;
+      transform: scale(1.05);
+    }
+
+    .customer-care {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #111;
+      border: 2px solid #FFD700;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #FFD70050;
+      transition: 0.3s;
+      z-index: 10;
+    }
+
+    .customer-care:hover {
+      background: #FFD700;
+      color: #000;
+      transform: scale(1.1);
+    }
+
+    #adminShield { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 24px; cursor: pointer; display: none; z-index: 10; }
+    #notification-bell { position: absolute; top: 20px; left: 20px; font-size: 24px; cursor: pointer; z-index: 10; }
+    #notification-dot { position: absolute; top: 15px; left: 35px; width: 10px; height: 10px; background: red; border-radius: 50%; display: none; }
+    #notification-modal { display: none; position: fixed; top: 70px; left: 20px; background: #111; color: #FFD700; border: 1px solid #FFD700; padding: 15px; border-radius: 10px; box-shadow: 0 0 10px #FFD70080; z-index: 100; width: 250px; max-height: 200px; overflow-y: auto; }
+
+    /* 🏆 Trophy popup */
+    .trophy-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(0, 0, 0, 0.9);
+      border: 3px solid #FFD700;
+      border-radius: 20px;
+      text-align: center;
+      color: #FFD700;
+      box-shadow: 0 0 25px #FFD70080;
+      padding: 30px 40px;
+      opacity: 0;
+      z-index: 999;
+      animation: fadeTrophy 1s ease forwards;
+    }
+
+    @keyframes fadeTrophy {
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .trophy-popup img {
+      width: 150px;
+      height: auto;
+      filter: drop-shadow(0 0 20px gold);
+      animation: shine 2s infinite alternate;
+    }
+
+    @keyframes shine {
+      0% { filter: drop-shadow(0 0 10px gold); }
+      100% { filter: drop-shadow(0 0 30px gold); }
+    }
+
+    .trophy-popup h2 { font-size: 1.5rem; text-shadow: 0 0 10px gold; margin-top: 10px; }
+    .close-trophy { position: absolute; top: 10px; right: 15px; color: #FFD700; cursor: pointer; font-size: 20px; background: none; border: none; }
+  </style>
+</head>
+<body>
+  <div class="chart-container">
+    <svg viewBox="0 0 900 600">
+      <path class="arrow-line" d="M50 550 C150 500, 250 480, 350 400 S500 300, 600 250 S750 200, 850 100" />
+      <polygon class="arrow-head" points="845,100 865,100 855,80" />
+    </svg>
+  </div>
+
+  <div class="watermark wm1">₿</div>
+  <div class="watermark wm2">📈</div>
+  <div class="watermark wm3">📉</div>
+  <div class="watermark wm4">🪙</div>
+  <div class="watermark wm5">💹</div>
+
+  <div id="notification-bell">🔔</div>
+  <div id="notification-dot"></div>
+  <div id="notification-modal"></div>
+  <div id="adminShield">☢️</div>
+  <div id="balance-container">₦0</div>
+
+  <div id="menu">
+    <button onclick="navigateTo('deposit-start.html')">Deposit</button>
+    <button onclick="navigateTo('withdraw.html')">Withdraw</button>
+    <button onclick="navigateTo('history.html')">History</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="token-menu" onclick="navigateTo('tokens.html')">💎 Token Lists</div>
+  <div class="customer-care" onclick="window.open('https://t.me/NTagent1', '_blank')">☎️</div>
+
+  <!-- 📲 Download App Section -->
+  <div id="downloadAppSection" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 20;">
+    <a id="downloadAppButton"
+       href="https://median.co/share/weljmbq"
+       style="display:inline-block; background:#FFD700; color:#000; padding:12px 25px; border-radius:10px; font-weight:600; text-decoration:none; box-shadow:0 0 15px #FFD70080; transition:0.3s;"
+       onclick="this.innerText='Redirecting...';">
+      📲 Download App
+    </a>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const balanceContainer = document.getElementById('balance-container');
+    const menu = document.getElementById('menu');
+    const adminShield = document.getElementById('adminShield');
+    const bell = document.getElementById('notification-bell');
+    const dot = document.getElementById('notification-dot');
+    const modal = document.getElementById('notification-modal');
+    let phoneNumber = localStorage.getItem('phone_number');
+
+    function navigateTo(page) { window.location.href = page; }
+    balanceContainer.onclick = () => menu.classList.toggle('show');
+
+    async function logout() {
+      await supabaseClient.auth.signOut();
+      localStorage.removeItem('phone_number');
+      setTimeout(() => (window.location.href = "login.html"), 1500);
+    }
+
+    async function loadUserData() {
+      if (!phoneNumber) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const { data } = await supabaseClient
+        .from('users')
+        .select('balance')
+        .eq('phone_number', phoneNumber)
+        .single();
+
+      if (data) {
+        balanceContainer.innerText = `₦${data.balance.toLocaleString()}`;
+        if (phoneNumber === "07065533348") {
+          adminShield.style.display = "block";
+          adminShield.onclick = () => navigateTo("admin.html");
+        }
+      }
+      loadNotifications();
+    }
+
+    async function loadNotifications() {
+      const { data } = await supabaseClient
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (data) modal.innerHTML = data.map(n => `<p>${n.message}</p>`).join('');
+    }
+
+    bell.onclick = () => {
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+      dot.style.display = 'none';
+    };
+
+    function subscribeToBalanceChanges() {
+      supabaseClient
+        .channel('balance-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'users', filter: `phone_number=eq.${phoneNumber}` },
+          (payload) => {
+            if (payload.new?.balance !== undefined) {
+              balanceContainer.innerText = `₦${payload.new.balance.toLocaleString()}`;
+            }
+          })
+        .subscribe();
+    }
+
+    function isMedianApp() {
+      const ua = navigator.userAgent.toLowerCase();
+      return ua.includes('median');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadUserData();
+      subscribeToBalanceChanges();
+
+      // Hide app download button if inside app
+      const appButton = document.getElementById('downloadAppSection');
+      if (appButton && isMedianApp()) appButton.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

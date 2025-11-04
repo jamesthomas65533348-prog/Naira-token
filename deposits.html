@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deposit Step 2 - Bank Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #000;
+      color: #FFD700;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* ========== Shared Card Style ========== */
+    .card {
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.5);
+      padding: 20px;
+      width: 90%;
+      max-width: 420px;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      transition: all 0.5s ease;
+      position: relative;
+      margin-bottom: 10px; /* tighter spacing */
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+    }
+
+    .monie-card {
+      background: linear-gradient(145deg, #0070BA, #004C91);
+      box-shadow: 0 0 25px rgba(0, 112, 186, 0.6);
+    }
+
+    .firstmonie-card {
+      background: #fff;
+      color: #000;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+    }
+
+    .monie-logo, .firstmonie-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      object-fit: contain;
+      transition: all 0.5s ease;
+    }
+
+    .card-text {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    /* ========== Bank details section ========== */
+    .bank-section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.5s ease;
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .bank-info {
+      background: #111;
+      border: 2px solid #FFD700;
+      border-radius: 20px;
+      box-shadow: 0 0 20px #FFD70060;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .copy-icon {
+      cursor: pointer;
+      margin-left: 8px;
+      font-size: 18px;
+      color: #FFD700;
+      transition: 0.2s;
+    }
+
+    .copy-icon:hover {
+      transform: scale(1.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 10px;
+      border: none;
+      background-color: #FFD700;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #000;
+      color: #FFD700;
+      border: 1px solid #FFD700;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: #FFD700;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 15px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 10px #FFD70080;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #000;
+      color: #FFD700;
+      border: 1px solid #FFD700;
+    }
+
+    /* Popup */
+    .popup {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      color: #FFD700;
+      border: 1px solid #FFD700;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #FFD70080;
+      opacity: 0;
+      animation: fadeInOut 3s forwards;
+      z-index: 1000;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(-10px); }
+      10% { opacity: 1; transform: translateY(0); }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-10px); }
+    }
+
+    .logo-top {
+      width: 80px;
+      margin: 10px auto;
+      display: none;
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+
+    .show-logo {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="window.location.href='deposit-start.html'">← Back</button>
+  <h2>Deposit Bank Details</h2>
+
+  <!-- Moniepoint Card -->
+  <div class="card monie-card" id="monieCard" onclick="revealDetails('monie')">
+    <img src="moniepoint-logo.png" alt="Moniepoint Logo" class="monie-logo">
+    <div class="card-text">Click to view details</div>
+  </div>
+
+  <!-- Moniepoint Bank Section -->
+  <div class="bank-section" id="monieSection">
+    <img src="moniepoint-logo.png" alt="Moniepoint Logo" class="logo-top" id="monieLogoTop">
+
+    <div class="bank-info">
+      <p><b>Bank Name:</b> MONIEPOINT</p>
+      <p><b>Account Number:</b> 7065533348 
+        <span class="copy-icon" onclick="copyAccount('7065533348')">📋</span>
+      </p>
+      <p><b>Account Name:</b> OFFICIAL HOLDER (James Thomas)</p>
+      <p><b>Deposit Amount:</b> ₦<span id="amountDisplay1">0</span></p>
+    </div>
+
+    <button onclick="goToProofPage()">Proceed →</button>
+  </div>
+
+  <!-- FirstMonie Card -->
+  <div class="card firstmonie-card" id="firstCard" onclick="revealDetails('first')">
+    <img src="firstmonie-logo.png" alt="FirstMonie Logo" class="firstmonie-logo">
+    <div class="card-text">Click to view details</div>
+  </div>
+
+  <!-- FirstMonie Bank Section -->
+  <div class="bank-section" id="firstSection">
+    <img src="firstmonie-logo.png" alt="FirstMonie Logo" class="logo-top" id="firstLogoTop">
+
+    <div class="bank-info">
+      <p><b>Bank Name:</b> FIRSTMONIE WALLET</p>
+      <p><b>Account Number:</b> 7065533348 
+        <span class="copy-icon" onclick="copyAccount('7065533348')">📋</span>
+      </p>
+      <p><b>Account Name:</b> OFFICIAL AGENT (James Thomas)</p>
+      <p><b>Deposit Amount:</b> ₦<span id="amountDisplay2">0</span></p>
+    </div>
+
+    <button onclick="goToProofPage()">Proceed →</button>
+  </div>
+
+  <script>
+    const amount = localStorage.getItem('deposit_amount');
+    document.getElementById('amountDisplay1').innerText = amount ? amount : '0';
+    document.getElementById('amountDisplay2').innerText = amount ? amount : '0';
+
+    function showPopup(msg) {
+      const popup = document.createElement('div');
+      popup.className = 'popup';
+      popup.innerText = msg;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    function copyAccount(number) {
+      navigator.clipboard.writeText(number);
+      showPopup('Account number copied!');
+    }
+
+    function goToProofPage() {
+      if (!amount || amount <= 0) {
+        showPopup('Please enter a valid amount first!');
+        return;
+      }
+      window.location.href = 'deposit-step3.html';
+    }
+
+    function revealDetails(bank) {
+      const allCards = document.querySelectorAll('.card');
+      const allSections = document.querySelectorAll('.bank-section');
+      const logoTop = document.getElementById(bank === 'monie' ? 'monieLogoTop' : 'firstLogoTop');
+      const section = document.getElementById(bank === 'monie' ? 'monieSection' : 'firstSection');
+      const clickedCard = document.getElementById(bank === 'monie' ? 'monieCard' : 'firstCard');
+
+      // Fade out all cards except the clicked one
+      allCards.forEach(card => {
+        if (card !== clickedCard) {
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.9)';
+          card.style.pointerEvents = 'none';
+        }
+      });
+
+      // Fade out the clicked card itself
+      clickedCard.style.opacity = '0';
+      clickedCard.style.transform = 'scale(0.95)';
+      clickedCard.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        allCards.forEach(card => card.style.display = 'none');
+        allSections.forEach(sec => sec.style.display = 'none');
+
+        logoTop.classList.add('show-logo');
+        section.style.display = 'block';
+        section.style.opacity = '1';
+        section.style.transform = 'translateY(0)';
+      }, 500);
+    }
+  </script>
+</body>
+</html>

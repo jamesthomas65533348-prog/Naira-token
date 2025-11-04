@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deposit Step 3 - Upload Proof</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #000;
+      color: #FFD700;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* ✅ Stylish animated glowing border card */
+    .card {
+      position: relative;
+      border-radius: 20px;
+      padding: 25px;
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+      background: rgba(17, 17, 17, 0.9);
+      overflow: hidden;
+      box-shadow: 0 0 25px #FFD70040;
+      border: 2px solid #FFD70040;
+    }
+
+    /* Multiple racing tick lines */
+    .card::before,
+    .card::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 20px;
+      background:
+        repeating-linear-gradient(
+          to right,
+          transparent 0%,
+          #FFD700 10%,
+          transparent 20%
+        ) top left / 400% 2px no-repeat,
+        repeating-linear-gradient(
+          to right,
+          transparent 0%,
+          #FFD700 10%,
+          transparent 20%
+        ) bottom left / 400% 2px no-repeat,
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0%,
+          #FFD700 10%,
+          transparent 20%
+        ) top left / 2px 400% no-repeat,
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0%,
+          #FFD700 10%,
+          transparent 20%
+        ) top right / 2px 400% no-repeat;
+      animation: borderTrace 5s linear infinite;
+      filter: drop-shadow(0 0 10px #FFD700) drop-shadow(0 0 20px #FFD700);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .card::after {
+      animation-delay: 2.5s;
+      opacity: 0.7;
+    }
+
+    @keyframes borderTrace {
+      0% {
+        background-position:
+          0 0, 100% 100%, 0 0, 100% 0;
+      }
+      100% {
+        background-position:
+          400% 0, -300% 100%, 0 400%, 100% -300%;
+      }
+    }
+
+    /* Upload section */
+    .upload-zone {
+      border: 2px dashed #FFD700;
+      border-radius: 15px;
+      padding: 40px 20px;
+      background: rgba(255, 215, 0, 0.05);
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      z-index: 2;
+    }
+
+    .upload-zone:hover {
+      background: rgba(255, 215, 0, 0.1);
+      box-shadow: 0 0 10px #FFD70080;
+    }
+
+    .upload-zone input {
+      display: none;
+    }
+
+    .upload-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .upload-zone p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .preview {
+      display: none;
+      position: relative;
+      z-index: 2;
+    }
+
+    .preview img {
+      width: 100%;
+      border-radius: 15px;
+      border: 2px solid #FFD700;
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 90%;
+      max-width: 420px;
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #submitBtn {
+      background-color: #FFD700;
+      color: #000;
+    }
+
+    #submitBtn:hover {
+      background: #000;
+      color: #FFD700;
+      border: 1px solid #FFD700;
+    }
+
+    #cancelBtn {
+      background: transparent;
+      border: 1px solid #FFD700;
+      color: #FFD700;
+    }
+
+    #cancelBtn:hover {
+      background: #FFD700;
+      color: #000;
+    }
+
+    .popup {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      color: #FFD700;
+      border: 1px solid #FFD700;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #FFD70080;
+      opacity: 0;
+      animation: fadeInOut 3s forwards;
+      z-index: 1000;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+      10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    }
+
+    .back-btn {
+      background: none;
+      color: #FFD700;
+      border: none;
+      font-size: 18px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="window.location.href='deposits.html'">← Back</button>
+  <h2>Upload Proof of Payment</h2>
+  <p class="subtitle">Please upload a screenshot of your payment receipt</p>
+
+  <div class="card">
+    <label class="upload-zone" for="proof" id="uploadZone">
+      <div class="upload-icon">📸</div>
+      <p><b>Click to upload</b> or drag and drop</p>
+      <p>PNG, JPG up to 2MB</p>
+      <input type="file" id="proof" accept="image/*">
+    </label>
+
+    <div class="preview" id="preview">
+      <img id="previewImg" src="#" alt="Proof Preview">
+    </div>
+  </div>
+
+  <button id="submitBtn">Submit Deposit</button>
+  <button id="cancelBtn" onclick="window.location.href='home.html'">Cancel</button>
+
+  <script>
+    console.log("Deposit Step 3 loaded ✅");
+
+    function showPopup(msg) {
+      const popup = document.createElement('div');
+      popup.className = 'popup';
+      popup.innerText = msg;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    const proofInput = document.getElementById("proof");
+    const uploadZone = document.getElementById("uploadZone");
+    const preview = document.getElementById("preview");
+    const previewImg = document.getElementById("previewImg");
+
+    proofInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          previewImg.src = reader.result;
+          uploadZone.style.display = "none";
+          preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const phone_number = localStorage.getItem('phone_number');
+      const amount = localStorage.getItem('deposit_amount');
+      const proofFile = proofInput.files[0];
+
+      if (!phone_number) return showPopup('Please login first!');
+      if (!amount || amount <= 0) return showPopup('Invalid amount!');
+      if (!proofFile) return showPopup('Please upload your payment proof!');
+
+      const submitButton = document.getElementById('submitBtn');
+      submitButton.disabled = true;
+      submitButton.textContent = "Uploading...";
+
+      if (typeof SUPABASE_URL === "undefined" || typeof SUPABASE_ANON_KEY === "undefined") {
+        showPopup("Supabase keys not loaded ❌");
+        console.error("config.js not loaded properly!");
+        submitButton.disabled = false;
+        submitButton.textContent = "Submit Deposit";
+        return;
+      }
+
+      const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const fileName = `${phone_number}_${Date.now()}_${proofFile.name}`;
+
+      showPopup('Uploading proof...');
+      const { error: uploadError } = await supabaseClient
+        .storage
+        .from('proofs')
+        .upload(fileName, proofFile);
+
+      if (uploadError) {
+        console.error(uploadError);
+        showPopup('Failed to upload proof!');
+        submitButton.disabled = false;
+        submitButton.textContent = "Submit Deposit";
+        return;
+      }
+
+      const { data: publicURL } = supabaseClient
+        .storage
+        .from('proofs')
+        .getPublicUrl(fileName);
+
+      const { error: insertError } = await supabaseClient
+        .from('deposits')
+        .insert([
+          {
+            phone_number,
+            amount,
+            screenshot_url: publicURL.publicUrl,
+            status: 'pending',
+            created_at: new Date().toISOString()
+          }
+        ]);
+
+      if (insertError) {
+        console.error(insertError);
+        showPopup('Deposit failed. Try again.');
+        submitButton.disabled = false;
+        submitButton.textContent = "Submit Deposit";
+        return;
+      }
+
+      showPopup('Deposit submitted successfully!');
+      localStorage.removeItem('deposit_amount');
+      proofInput.value = '';
+      preview.style.display = "none";
+      uploadZone.style.display = "block";
+      submitButton.textContent = "Done ✅";
+      setTimeout(() => window.location.href = 'home.html', 2000);
+    });
+  </script>
+</body>
+</html>
